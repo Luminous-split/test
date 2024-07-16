@@ -1,6 +1,6 @@
-key_bindings:
+[key_bindings]
   # Ctrl+E: Move cursor to the end of the line
-  - { key: E, modifiers: Control, action: "MoveToLineEnd" }
+  { key = "E", mods = "Control", action = "MoveToLineEnd" }
   
   # Ctrl+A: Move cursor to the beginning of the line
-  - { key: A, modifiers: Control, action: "MoveToLineStart" }
+  { key = "A", mods = "Control", action = "MoveToLineStart" }
