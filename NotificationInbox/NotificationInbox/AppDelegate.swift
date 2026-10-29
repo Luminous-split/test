@@ -29,8 +29,17 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        Task { @MainActor in NotificationStore.shared.add(notification) }
-        completionHandler([.banner, .list, .sound, .badge])
+        Task { @MainActor in
+            NotificationStore.shared.add(notification)
+            let speaker = Speaker.shared
+            if speaker.autoRead {
+                // Speak with the app's voice and mute the notification sound so it isn't read twice.
+                speaker.speak(ReceivedNotification(notification).spokenText)
+                completionHandler([.banner, .list, .badge])
+            } else {
+                completionHandler([.banner, .list, .sound, .badge])
+            }
+        }
     }
 
     /// User tapped a notification (app may have been in the background or killed).

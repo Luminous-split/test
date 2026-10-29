@@ -1,0 +1,34 @@
+# Everything in project.yml, plus:
+# - Push Notifications capability
+# - SpeakService: a notification service extension that turns each push into spoken audio
+# - App group so the extension and the app share Library/Sounds
+# Needs a paid Apple Developer account.
+include: [project.yml]
+targets:
+  NotificationInbox:
+    dependencies:
+      - target: SpeakService
+    entitlements:
+      path: NotificationInbox/NotificationInbox.entitlements
+      properties:
+        aps-environment: development
+        com.apple.security.application-groups: [group.com.example.NotificationInbox]
+  SpeakService:
+    type: app-extension
+    platform: iOS
+    sources: [SpeakService, Shared]
+    info:
+      path: SpeakService/Info.plist
+      properties:
+        CFBundleDisplayName: SpeakService
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+    entitlements:
+      path: SpeakService/SpeakService.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.example.NotificationInbox]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.NotificationInbox.SpeakService
+        TARGETED_DEVICE_FAMILY: "1,2"

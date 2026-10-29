@@ -1,8 +1,10 @@
+# Works with a free Apple ID: local notifications, in-app voice, and Siri shortcuts.
+# For real remote pushes that speak themselves, use project-push.yml (paid account).
 name: NotificationInbox
 options:
   bundleIdPrefix: com.example
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "17.0"
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -12,7 +14,7 @@ targets:
   NotificationInbox:
     type: application
     platform: iOS
-    sources: [NotificationInbox]
+    sources: [NotificationInbox, Shared]
     info:
       path: NotificationInbox/Info.plist
       properties:

@@ -1,4 +1,5 @@
 *.xcodeproj/
-NotificationInbox/Info.plist
+*/Info.plist
+*/*.entitlements
 DerivedData/
 xcuserdata/

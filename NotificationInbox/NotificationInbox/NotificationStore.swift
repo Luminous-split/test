@@ -19,6 +19,10 @@ struct ReceivedNotification: Identifiable, Equatable {
         date = notification.date
         userInfo = content.userInfo.isEmpty ? "" : String(describing: content.userInfo)
     }
+
+    var spokenText: String {
+        SpokenSound.text(title: title, subtitle: subtitle, body: body)
+    }
 }
 
 /// Holds received notifications in memory only.
@@ -61,13 +65,30 @@ final class NotificationStore: ObservableObject {
     }
 
     /// Schedules a local notification so the app can be tested without a push server.
+    /// Its sound is the spoken text, so it reads itself aloud even with the app closed.
     func sendTestNotification(after seconds: TimeInterval = 5) {
         let content = UNMutableNotificationContent()
         content.title = "Test notification"
-        content.body = "Sent at \(Date().formatted(date: .omitted, time: .standard))"
-        content.sound = .default
+        content.body = "Sent at \(Date().formatted(date: .omitted, time: .shortened))"
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false)
-        center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger))
+
+        Task {
+            let text = SpokenSound.text(title: content.title, subtitle: content.subtitle, body: content.body)
+            if let name = await SpokenSound.make(for: text) {
+                content.sound = UNNotificationSound(named: UNNotificationSoundName(name))
+            } else {
+                content.sound = .default
+            }
+            try? await center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger))
+        }
+    }
+
+    func readAll() {
+        guard !items.isEmpty else {
+            Speaker.shared.speak("You have no notifications.")
+            return
+        }
+        Speaker.shared.speak(items.map(\.spokenText).joined(separator: ". Next. "))
     }
 
     func clear() {

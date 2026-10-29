@@ -1,8 +1,10 @@
+import AppIntents
 import SwiftUI
 import UserNotifications
 
 struct ContentView: View {
     @EnvironmentObject private var store: NotificationStore
+    @ObservedObject private var speaker = Speaker.shared
 
     var body: some View {
         NavigationStack {
@@ -24,6 +26,16 @@ struct ContentView: View {
                     }
                 }
 
+                Section("Voice") {
+                    Toggle("Read aloud when received", isOn: $speaker.autoRead)
+                    if speaker.isSpeaking {
+                        Button("Stop Speaking", role: .destructive) { speaker.stop() }
+                    } else {
+                        Button("Read All Aloud") { store.readAll() }
+                    }
+                    SiriTipView(intent: ReadNotificationsIntent())
+                }
+
                 Section("Received (\(store.items.count)) — kept in memory only") {
                     if store.items.isEmpty {
                         Text("No notifications yet").foregroundStyle(.secondary)
@@ -40,15 +52,17 @@ struct ContentView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         .padding(.vertical, 2)
+                        .contentShape(Rectangle())
+                        .onTapGesture { speaker.speak(item.spokenText) }
                     }
                 }
             }
             .navigationTitle("Notifications")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button("Clear", role: .destructive) { store.clear() }.disabled(store.items.isEmpty)
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button { store.refresh() } label: { Image(systemName: "arrow.clockwise") }
                 }
             }

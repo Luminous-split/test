@@ -10,7 +10,7 @@ struct NotificationInboxApp: App {
             ContentView()
                 .environmentObject(NotificationStore.shared)
         }
-        .onChange(of: scenePhase) { phase in
+        .onChange(of: scenePhase) { _, phase in
             // Pick up anything that arrived while the app was in the background.
             if phase == .active {
                 NotificationStore.shared.refresh()
